@@ -25,14 +25,16 @@ simu1 <- function( v.exp,n,theta,SF=1 ) {
                     df.prost$prank > breaks[i-1], "id" ], size=1 ) )
   }
 
+  v.obs <- vector()
   # Asignamos mismo valor que el esperado para los no seleccionados
-  df.prost$obs[ !(df.prost$id %in% sel.idx) ] <- 
+  v.obs[ !(df.prost$id %in% sel.idx) ] <- 
     df.prost$exp[ !(df.prost$id %in% sel.idx) ]
   # Asignamos el valor multiplicado por theta para cada punto seleccionado
-  df.prost$obs[ df.prost$id %in% sel.idx ] <- 
+  v.obs[ df.prost$id %in% sel.idx ] <- 
     df.prost$exp[ df.prost$id %in% sel.idx ] * theta
   
-  v.obs <- df.prost$obs
+  # Creamos el vector de 
+  v.obs <- sapply(v.obs,FUN=function(lambda){rpois(1,lambda)})
   names(v.obs) <- df.prost$id
   
   # Devolvemos una lista con el valor esperado,valor observado y el identificador
