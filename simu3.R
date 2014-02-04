@@ -60,8 +60,8 @@ simu3 <- function( v.exp,all.nb,theta,NOC=20,SF=1,pct=0.01 ) {
   v.obs <- vector()
   
   # Asignamos el valor multiplicado por theta para cada punto seleccionado
-  v.exp[ ID %in% sel.idx ] <- v.exp[ ID %in% sel.idx ] * theta
-  # v.exp <- v.exp / sum(v.exp) # normalitzation not necessary for generation
+  v.exp[ ID %in% unlist(sel.idx) ] <- v.exp[ ID %in% unlist(sel.idx) ] * theta
+  v.exp <- v.exp / sum(v.exp) # normalitzation not necessary for generation
   
   # Creamos el vector de casos observadoss
   v.obs <- as.vector(rmultinom(1,size=N,prob=v.exp))
