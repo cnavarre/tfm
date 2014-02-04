@@ -1,17 +1,30 @@
+# Load data
+setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
 load("./data/input_data.Rdata")
 
-# Definicion del vector de thetas
-v.theta = c(1.5,2,3)
+# Load shared functions
+setwd("~/GitHub/tfm")
+source("./utils.tfm.R")
 
-# Factor de escala para la los valores esperados
-v.SF = 2:10
-
+# DEFINITION: simu1
+# Function to generate simulated scenario with n spatial units with E_i*theta as new
+# expected values. Final scenario has 'n' single isolated areas with elevated risks.
+# Observed number of cases (Y_i) comes from Poisson( E_i*theta_i ), where theta_i = 1 if 
+# the area is not in selected indexes vector (sel.idx), otherwise theta_i=theta parameter.
+#
+# INPUT: 
+#  v.exp -> E_i, background expected observations for each geo-unit (i).
+#  n -> number of units to increase the expectation value.
+#  theta -> proportional constant.
+#  SF -> scale factor
+#
+# OUTPUT:
+#  exp -> expected values for each spatial unit
+#  obs -> number of observed cases per spatial unit.
+#  sel.idx -> selected indexes with new expected value: E^*_i = E_i*theta
 simu1 <- function( v.exp,n,theta,SF=1 ) {
   # Factor de escala para los valores esperados
   v.exp <- v.exp * SF
-  
-  # Calculamos los ranking por percentil de cada valor del vector:
-  perc.rank <- function(x) trunc(rank(x))/length(x)
   
   df.prost <- data.frame( exp=v.exp )
   df.prost <- within(df.prost, prank <- perc.rank(v.exp))
@@ -40,6 +53,9 @@ simu1 <- function( v.exp,n,theta,SF=1 ) {
   return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
 }
 
-simu1(Eprostata,5,v.theta[1])
 
-simu1(Eprostata,5,v.theta[2],SF=2)
+simu1(Eprostata,5,1.5)
+
+simu1(Eprostata,5,2,SF=2)
+
+simu1(Eprostata,5,3,SF=10)

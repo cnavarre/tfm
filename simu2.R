@@ -1,4 +1,10 @@
+# Load data
+setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
 load("./data/input_data.Rdata")
+
+# Load shared functions
+setwd("~/GitHub/tfm")
+source("./utils.tfm.R")
 
 # Definicion del vector de thetas
 v.theta = c(1.5,2,3)
@@ -8,14 +14,12 @@ v.SF = 2:10
 
 # nb object from spatial polygons.
 require(spdep);require("maptools")
-vlc.nb <- poly2nb(Carto,snap=0.01)
+vlc.nb <- poly2nb(Carto,snap=1)
 
 
-# DEFINITION: 
-# INPUT PARAMETERS:
+# DEFINITION: # INPUT PARAMETERS:
 #  v.exp <- vector of expected values for background observed values
 #  all.nb <- nb object
-#  NOC -> number of clusters
 #  theta -> value of theta, modifier of expeted value for clusters
 #  SF -> scale factor for expected values for all region.
 #  pct -> minimun percentage of expected values in cluster.
@@ -39,10 +43,8 @@ simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   
   cont <- TRUE  
   while( cont ) {
-    n <- length(sel.idx)
-    last.added <- sel.idx[n]
-    list.nb <- all.nb[[which( (ID %in% last.added) )]] # Neighbours of las added
-    list.nb <- list.nb[!(ID[ list.nb ] %in% sel.idx )] # Filter out already added in previous steps
+    list.nb <- cluster.nb( which( (ID %in% sel.idx) ), all.nb ) # Neighbours of last added
+    
     # To be added to cluster
     obj2add.nb <- list.nb[cumsum(( v.exp[list.nb] + sum(v.exp[sel.idx]) ) / tot.exp) < pct]
     sel.idx <- c(sel.idx,ID[obj2add.nb])
