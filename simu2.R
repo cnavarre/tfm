@@ -1,30 +1,18 @@
-# Load data
-setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
-load("./data/input_data.Rdata")
+#' @description Creates simulation scenario type.2  
+#' \code{simu2} creates an scenario type.2
+#' @details
+#' 
+#' @param v.exp a vector of expected values for background observed values
+#' @param all.nb a nb object
+#' @param theta modifier of expeted value for cluster elements
+#' @param SF scale factor for expected values for all region.
+#' @param pct is minimun percentage of expected values in cluster.
+#' @return exp modified vector with expected values
+#' @return obs vector of observations
+#' @return sel vector of indexes of areas selected into the cluster
+#' @example 
+#' simu2(v.exp=Eprostata,all.nb=vlc.nb,theta=2,SF=1,pct=0.01)
 
-# Load shared functions
-setwd("~/GitHub/tfm")
-source("./utils.tfm.R")
-
-# Definicion del vector de thetas
-v.theta = c(1.5,2,3)
-
-# Factor de escala para la los valores esperados
-v.SF = 2:10
-
-# nb object from spatial polygons.
-require(spdep);require("maptools")
-vlc.nb <- poly2nb(Carto,snap=1)
-
-
-# DEFINITION: # INPUT PARAMETERS:
-#  v.exp <- vector of expected values for background observed values
-#  all.nb <- nb object
-#  theta -> value of theta, modifier of expeted value for clusters
-#  SF -> scale factor for expected values for all region.
-#  pct -> minimun percentage of expected values in cluster.
-# OUTPUT VALUES:
-#  v.exp <- 
 simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   require(spdep);require("maptools")
   
@@ -57,14 +45,11 @@ simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   # Asignamos el valor multiplicado por theta para cada punto seleccionado
   v.exp[ ID %in% sel.idx ] <- v.exp[ ID %in% sel.idx ] * theta
   
-  # Creamos el vector de 
+  # Creamos el vector de observaciones
   v.obs <- sapply(v.exp,FUN=function(lambda){rpois(1,lambda)})
   names(v.obs) <- ID
   
   # Devolvemos una lista con el valor esperado,valor observado y el identificador
+  sel.idx <- as.numeric(paste("46250",sel.idx,sep=""))
   return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
 }
-
-
-# Testing
-simu2(v.exp=Eprostata,all.nb=vlc.nb,theta=v.theta[1],SF=1,pct=0.01)

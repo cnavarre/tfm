@@ -1,11 +1,3 @@
-# Load data
-setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
-load("./data/input_data.Rdata")
-
-# Load shared functions
-setwd("~/GitHub/tfm")
-source("./utils.tfm.R")
-
 # DEFINITION: 
 # Situation with high heterogeneity compising NOC cluster of 1% of expected values.
 # Observations are simulated from multinomial of size N=[sum(E_i)] and p_i {prop} E_i*theta_i
@@ -51,9 +43,10 @@ simu3 <- function( v.exp,all.nb,theta,NOC=20,SF=1,pct=0.01 ) {
       cont <- ( length(obj2add.nb) == length(list.nb) )
     }
   
-    # Check if new cluster is nonoverlapping with previous clusters
+    # Check if new cluster (or his frontier) is nonoverlapping with previous clusters
     # in this case: add to selected areas to increase the risk
-    if( !any(clus.idx %in% sel.idx) ) 
+    clus.front.idx <- c(clus.idx, ID[list.nb] ) # cluster and frontier's cluster
+    if( !any( clus.front.idx %in% unlist(sel.idx) ) ) 
       sel.idx[[length(sel.idx)+1]] <- clus.idx      
   }
   
@@ -68,19 +61,8 @@ simu3 <- function( v.exp,all.nb,theta,NOC=20,SF=1,pct=0.01 ) {
   names(v.obs) <- ID
   
   # Devolvemos una lista con el valor esperado,valor observado y el identificador
+  sel.idx <- lapply(sel.idx,FUN=function(x){ as.numeric(paste("46250",x,sep="")) })
   return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
 }
 
 
-# Testing
-# Definicion del vector de thetas
-v.theta = c(1.5,2,3)
-
-# Factor de escala para la los valores esperados
-v.SF = 2:10
-
-# nb object from spatial polygons.
-require(spdep);require("maptools")
-vlc.nb <- poly2nb(Carto,snap=0.01)
-
-simu3(v.exp=Eprostata,all.nb=vlc.nb,theta=v.theta[3],NOC=20,SF=1,pct=0.01)

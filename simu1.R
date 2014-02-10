@@ -1,27 +1,17 @@
-# Load data
-setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
-load("./data/input_data.Rdata")
-
-# Load shared functions
-setwd("~/GitHub/tfm")
-source("./utils.tfm.R")
-
-# DEFINITION: simu1
-# Function to generate simulated scenario with n spatial units with E_i*theta as new
-# expected values. Final scenario has 'n' single isolated areas with elevated risks.
-# Observed number of cases (Y_i) comes from Poisson( E_i*theta_i ), where theta_i = 1 if 
-# the area is not in selected indexes vector (sel.idx), otherwise theta_i=theta parameter.
-#
-# INPUT: 
-#  v.exp -> E_i, background expected observations for each geo-unit (i).
-#  n -> number of units to increase the expectation value.
-#  theta -> proportional constant.
-#  SF -> scale factor
-#
-# OUTPUT:
-#  exp -> expected values for each spatial unit
-#  obs -> number of observed cases per spatial unit.
-#  sel.idx -> selected indexes with new expected value: E^*_i = E_i*theta
+#' @description  \code{simu1} creates an scenario type.1
+#' @details Function to generate simulated scenario with n spatial units with E_i*theta as new
+#' expected values. Final scenario has 'n' single isolated areas with elevated risks.
+#' Observed number of cases (Y_i) comes from Poisson( E_i*theta_i ), where theta_i = 1 if 
+#' the area is not in selected indexes vector (sel.idx), otherwise theta_i=theta parameter.
+#' 
+#' @param  v.exp E_i, background expected observations for each geo-unit (i). 
+#' number of units to increase the expectation value.
+#' @param theta proportional constant.
+#' @param SF  scale factor
+#' 
+#' @return exp expected values for each spatial unit
+#' @return obs number of observed cases per spatial unit.
+#' @return sel selected indexes with new expected value: E^*_i = E_i*theta
 simu1 <- function( v.exp,n,theta,SF=1 ) {
   # Factor de escala para los valores esperados
   v.exp <- v.exp * SF
@@ -50,12 +40,6 @@ simu1 <- function( v.exp,n,theta,SF=1 ) {
   names(v.obs) <- df.prost$id
   
   # Devolvemos una lista con el valor esperado (modificado con theta),valor observado y el identificador
+  sel.idx <- as.numeric(paste("46250",sel.idx,sep=""))
   return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
 }
-
-
-simu1(Eprostata,5,1.5)
-
-simu1(Eprostata,5,2,SF=2)
-
-simu1(Eprostata,5,3,SF=10)

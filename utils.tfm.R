@@ -12,3 +12,26 @@ cluster.nb <- function( cluster,all.nb ){
   
   return(list.nb)
 }
+
+destring <- function(x) {
+  ## convert factor to strings
+  if (is.character(x)) {
+    as.numeric(x)
+  } else if (is.factor(x)) {
+    as.numeric(levels(x))[x]
+  } else if (is.numeric(x)) {
+    x
+  } else {
+    stop("could not convert to numeric")
+  }
+}
+
+
+.eval <- function(evaltext,envir=sys.frame()) {
+  ## evaluate a string as R code
+  eval(parse(text=evaltext), envir=envir)
+}
+
+## trim white space/tabs
+## this is marek's version
+trim<-function(s) gsub("^[[:space:]]+|[[:space:]]+$","",s)
