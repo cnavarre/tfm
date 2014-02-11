@@ -27,8 +27,7 @@ for( file in files2load)
   source( file )
 
 ###################
-# Testing
-
+# Constants
 # Definicion del vector de thetas
 v.theta = c(1.5,2,3)
 
@@ -36,53 +35,10 @@ v.theta = c(1.5,2,3)
 v.SF = c(1,2,4,10)
 
 # nb object from spatial polygons.
-vlc.nb <- poly2nb(Carto,snap=0.01)
-
-
-############
-# Scenario.1
-brks = quantile(Eprostata, seq(0, 1, length.out=256))
-cols = colorRampPalette(c("#55FFFF", "grey10"))(255)
-xlim = c(7.275e5,7.2751e5)
-ylim=c(4.365e6,4.379e6)
-
-plot(Carto,col=cols[findInterval(Eprostata, brks, all.inside=TRUE)],
-     xlim=xlim,ylim=ylim)
-
-obj <- simu1(Eprostata,5,1.5)
-plot(Carto,col=ifelse( Carto$CODIGO %in% obj$sel,"red4","navajowhite2" ),
-     xlim=xlim,ylim=ylim)
-
-obj <- simu1(Eprostata,5,2,SF=2)
-plot(Carto,col=ifelse( Carto$CODIGO %in% obj$sel,"red4","navajowhite2" ),
-     xlim=xlim,ylim=ylim)
-
-obj <- simu1(Eprostata,5,3,SF=10)
-plot(Carto,col=ifelse( Carto$CODIGO %in% obj$sel,"red4","navajowhite2" ),
-     xlim=xlim,ylim=ylim)
-
-
-############
-# Scenario.2
-obj <- simu2(v.exp=Eprostata,all.nb=vlc.nb,theta=2,SF=1)
-plot(Carto,col=ifelse(Carto$CODIGO %in% obj$sel, "red3","navajowhite2" ),
-     xlim=xlim,ylim=ylim)
-
-
-############
-# Scenario.3
-obj <- simu3( v.exp=Eprostata,
-              all.nb=vlc.nb,
-              theta=v.theta[3],NOC=20,SF=1,pct=0.01)
-# Plot
-plot(Carto,col=ifelse(Carto$CODIGO %in% unlist(obj$sel), "red3","navajowhite2" ),
-     xlim=xlim,ylim=ylim)
-
-
+vlc.nb <- poly2nb(Carto,snap=1)
 
 ###################
 # Create scenarios
-
 for( theta in v.theta)
   for( SF in v.SF) {
     # Simu1

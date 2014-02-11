@@ -1,0 +1,21 @@
+# BYM
+model{
+  for(i in 1:n){
+    O[i] ~ dpois( mu[i] )
+    log(mu[i]) <- log(E[i]) + m + het[i] + sp[i]
+    het[i] ~ dnorm( 0, prechet )
+    R[i] <- exp( m + het[i] + sp[i] )
+  }
+  sp[1:n] ~ car.normal( adj[], weights[], num[], precsp )
+  m ~ dflat( ) # Not defined in JAGS
+  # m ~ dunif(-1e10, 1e10 )
+  # prechet <- pow( sdhet, -2 )
+  # precsp <- pow( sdsp, -2 )
+  # sdhet ~ dunif( 0, 10 ) # vague prior
+  # sdsp ~ dunif( 0, 10 ) # vague prior
+  prechet ~ dgamma( 1.0E-3, 1.0E-3 ) # non informative prior  
+  precsp ~ dgamma( 1.0E-3, 1.0E-3 )  # Gelman 2006
+
+  sdhet <- sd(het[])  # marginal SD of heterogeneity effects
+  sdsp <- sd(sp[])    # marginal SD of clustering(spatial) effects
+}

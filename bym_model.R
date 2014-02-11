@@ -1,0 +1,61 @@
+# bym_model.R
+################################
+# Date: 10/02/2014
+# Author: CNM 
+# Project: TFM
+# Description: 
+
+# Clean workspace & set wd
+rm(list=ls())
+setwd("~/GitHub/tfm")
+
+# Libraries
+library(httr)  # Load data from Dropbox
+require(spdep)
+require(maptools)
+library(R2WinBUGS)
+
+response <- GET(url="https://dl.dropboxusercontent.com/s/jl47y8w6da6x46m/Claudio.RData")
+load(rawConnection(response$content))
+rm(response)
+
+# Prepare winbugs data
+carto.nb <- poly2nb(Carto,snap=1)
+carto.wb <- nb2WB(carto.nb)
+rm(list=c("Carto","Eprostata","carto.nb"))
+
+# Load scenario
+scenList <- paste0("./scenarios/",dir(path="scenarios",pattern="simu1"))
+
+iters = 5000
+burn = 100
+
+for( scen in scenList ) {
+  # path <- dirname( strScenario )
+  # filename <- basename( strScenario )
+  outputfile <- paste0("output","/",sub("\\.[[:alnum:]]+$", "", basename(scen)),".Rda")
+  data <- dget( scen )
+
+  O <- data$obs
+  E <- data$exp
+
+  # Modelo Suavizado Besag York y Mollie
+  bym.data <- list( "O"=O, "E"=E, "n"=length(O), 
+                    "adj" = carto.wb$adj, "weights"=carto.wb$weights,
+                    "num" = carto.wb$num )
+  bym.inits <- function() {list("prechet" = 1,"precsp" = 1,"m" = 0,
+                                "het" = rep(0,length(O)),"sp" = rep(0,length(O)))}
+  bym.params <- c("sdhet","sdsp","R")
+  model.file <- paste(getwd(),"/bym.model.bugs",sep="")
+  bym <- bugs( data = bym.data, inits = bym.inits, parameters=bym.params,
+               model.file = model.file, n.chains = 3, 
+               n.iter = iters, n.burnin = burn, n.thin = 1,
+              debug = F, DIC = T)
+
+  saveRDS( object=bym,file=outputfile )
+
+  # bym <- readRDS(file=outputfile)
+
+  # bym.mcmc <- as.mcmc(bym)
+  # bym.m <- as.matrix(bym.mcmc)
+}
