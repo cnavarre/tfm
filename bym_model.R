@@ -26,9 +26,11 @@ rm(list=c("Carto","Eprostata","carto.nb"))
 
 # Load scenario
 scenList <- paste0("./scenarios/",dir(path="scenarios",pattern="simu1"))
+# scenList <- paste0("./scenarios/",dir(path="scenarios",pattern="simu2"))
+# scenList <- paste0("./scenarios/",dir(path="scenarios",pattern="simu3"))
 
-iters = 5000
-burn = 100
+iters = 3500
+burn = 500
 
 for( scen in scenList ) {
   # path <- dirname( strScenario )
@@ -37,20 +39,21 @@ for( scen in scenList ) {
   data <- dget( scen )
 
   O <- data$obs
-  E <- data$exp
+  # E <- data$exp # Expected values modified
+  E <- Eprostata
 
   # Modelo Suavizado Besag York y Mollie
-  bym.data <- list( "O"=O, "E"=E, "n"=length(O), 
-                    "adj" = carto.wb$adj, "weights"=carto.wb$weights,
-                    "num" = carto.wb$num )
-  bym.inits <- function() {list("prechet" = 1,"precsp" = 1,"m" = 0,
-                                "het" = rep(0,length(O)),"sp" = rep(0,length(O)))}
-  bym.params <- c("sdhet","sdsp","R")
+  bym.data <- list( O=O, E=E, n=length(O), 
+                    adj = carto.wb$adj, weights=carto.wb$weights,
+                    num = carto.wb$num )
+  bym.inits <- function() {list(prechet = 1, precsp = 1,m = 0,
+                                het = rep(0,length(O)), sp = rep(0,length(O)))}
+  bym.params <- c("m","sdhet","sdsp","R")
   model.file <- paste(getwd(),"/bym.model.bugs",sep="")
   bym <- bugs( data = bym.data, inits = bym.inits, parameters=bym.params,
-               model.file = model.file, n.chains = 3, 
+               model.file = model.file, n.chains = 3,  working.dir="./kk/simu3",
                n.iter = iters, n.burnin = burn, n.thin = 1,
-              debug = F, DIC = T)
+              debug = F, DIC = F)
 
   saveRDS( object=bym,file=outputfile )
 

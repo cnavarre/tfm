@@ -39,24 +39,24 @@ vlc.nb <- poly2nb(Carto,snap=1)
 
 ###################
 # Create scenarios
-for( theta in v.theta)
+for( rep in 1:10)
+ for( theta in v.theta)
   for( SF in v.SF) {
     # Simu1
     obj <- simu1(Eprostata,5,theta=theta,SF=SF)
     dput(x=obj,
          file=paste0("./scenarios/simu1_",
-                     gsub("([.])","",as.character(theta)),"_",as.character(SF),".dat") )
+                     gsub("([.])","",as.character(theta)),"_",as.character(SF),"_r",as.character(rep),".dat") )
     
     # Simu2
     obj <- simu2(Eprostata,5,theta=theta,SF=SF,all.nb=vlc.nb)
     dput(x=obj,
          file=paste0("./scenarios/simu2_",
-                     gsub("([.])","",as.character(theta)),"_",as.character(SF),".dat") )
+                     gsub("([.])","",as.character(theta)),"_",as.character(SF),"_r",as.character(rep),".dat") )
     
     # Simu3
     obj <- simu3(Eprostata,5,theta=theta,SF=SF,all.nb=vlc.nb)
     dput(x=obj,
          file=paste0("./scenarios/simu3_",
-                     gsub("([.])","",as.character(theta)),"_",as.character(SF),".dat") )
+                     gsub("([.])","",as.character(theta)),"_",as.character(SF),"_r",as.character(rep),".dat") )
   }
-   
