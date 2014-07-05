@@ -15,6 +15,7 @@
 simu1 <- function( v.exp,n,theta,SF=1 ) {
   # Factor de escala para los valores esperados
   v.exp <- v.exp * SF
+  v.exp.base <- v.exp
   
   df.prost <- data.frame( exp=v.exp )
   df.prost <- within(df.prost, prank <- perc.rank(v.exp))
@@ -41,5 +42,5 @@ simu1 <- function( v.exp,n,theta,SF=1 ) {
   
   # Devolvemos una lista con el valor esperado (modificado con theta),valor observado y el identificador
   sel.idx <- as.numeric(paste("46250",sel.idx,sep=""))
-  return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
+  return(list(exp=v.exp,obs=v.obs,sel=sel.idx,theta=theta,SF=SF,exp.base=v.exp.base))
 }

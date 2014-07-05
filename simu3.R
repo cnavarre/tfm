@@ -17,6 +17,8 @@ simu3 <- function( v.exp,all.nb,theta,NOC=20,SF=1,pct=0.01 ) {
   
   # Factor de escala para los valores esperados
   v.exp <- v.exp * SF
+  v.exp.base <- v.exp
+  
   tot.exp <- sum(v.exp) # Total amount of expected values
   N <- floor(tot.exp)
   
@@ -62,7 +64,7 @@ simu3 <- function( v.exp,all.nb,theta,NOC=20,SF=1,pct=0.01 ) {
   
   # Devolvemos una lista con el valor esperado,valor observado y el identificador
   sel.idx <- lapply(sel.idx,FUN=function(x){ as.numeric(paste("46250",x,sep="")) })
-  return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
+  return(list(exp=v.exp,obs=v.obs,sel=sel.idx,theta=theta,SF=SF,exp.base=v.exp.base))
 }
 
 

@@ -35,3 +35,36 @@ destring <- function(x) {
 ## trim white space/tabs
 ## this is marek's version
 trim<-function(s) gsub("^[[:space:]]+|[[:space:]]+$","",s)
+
+## auto-install packages 
+## if not found
+libra <- function(x) { 
+  if (!base::require(x, character.only = TRUE)) {
+    install.packages(x, dep = TRUE) ; 
+    base::require(x, character.only = TRUE)
+  } 
+}
+
+## remove if exist
+rem <- function( varList ) {
+  for( varName in varList )   
+    if( exists(varName) ) rm(list=varName,envir=parent.frame())
+}
+
+## Classifing areas through SMR posterior matrix
+## High risk (1): if P( \theta_i > R0 ) > 1
+## Low Risk (0): otherwise
+decision.rule <- function( smr.m , k=0.8, R0=1 ) {
+  prob <- apply(smr.m > R0,2,sum) / apply(smr.m,2,length)
+  risk.level <- factor(as.numeric(prob > k),levels=c("0","1"))
+  return(risk=risk.level)
+}
+
+
+## Create a NULL matrix of dimension nrow x ncol
+create.matrix <- function(nrow, ncol) {
+  x <- matrix()
+  length(x) <- nrow * ncol
+  dim(x) <- c(nrow,ncol)
+  x
+}

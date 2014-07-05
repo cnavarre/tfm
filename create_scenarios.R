@@ -18,7 +18,7 @@ require("maptools")
 response <- GET(url="https://dl.dropboxusercontent.com/s/jl47y8w6da6x46m/Claudio.RData")
 load(rawConnection(response$content))
 rm(response)
-# setwd("~/docs/cursos/master_uv_bioestadistica/project/scripts/")
+# setwd("/host/Users/claudio/Documents/docs/cursos/master_uv_bioestadistica/project/scripts/")
 # load("./data/input_data.Rdata")
 
 # Load shared functions and simulations

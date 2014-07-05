@@ -39,8 +39,7 @@ for( scen in scenList ) {
   data <- dget( scen )
 
   O <- data$obs
-  # E <- data$exp # Expected values modified
-  E <- Eprostata
+  E <- data$exp.base # Expected values modified
 
   # Modelo Suavizado Besag York y Mollie
   bym.data <- list( O=O, E=E, n=length(O), 
@@ -48,12 +47,14 @@ for( scen in scenList ) {
                     num = carto.wb$num )
   bym.inits <- function() {list(prechet = 1, precsp = 1,m = 0,
                                 het = rep(0,length(O)), sp = rep(0,length(O)))}
-  bym.params <- c("m","sdhet","sdsp","R")
+  bym.params <- c("m","sdhet","sdsp","R","sp")
   model.file <- paste(getwd(),"/bym.model.bugs",sep="")
   bym <- bugs( data = bym.data, inits = bym.inits, parameters=bym.params,
-               model.file = model.file, n.chains = 3,  working.dir="./kk/simu3",
+               model.file = model.file, n.chains = 3, 
+               working.directory="~/.wine/drive_c/temp/Rtmp/", clearWD=T,
+               bugs.directory="c:/Program Files (x86)/WinBUGS14/",
                n.iter = iters, n.burnin = burn, n.thin = 1,
-              debug = F, DIC = F)
+               debug = F, DIC = F)
 
   saveRDS( object=bym,file=outputfile )
 

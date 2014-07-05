@@ -13,7 +13,7 @@ setwd("~/GitHub/tfm")
 # Libraries
 library(httr)  # Load data from Dropbox
 require(spdep)
-require("maptools")
+require(maptools)
 
 response <- GET(url="https://dl.dropboxusercontent.com/s/jl47y8w6da6x46m/Claudio.RData")
 load(rawConnection(response$content))

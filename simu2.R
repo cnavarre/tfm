@@ -20,6 +20,8 @@ simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   
   # Factor de escala para los valores esperados
   v.exp <- v.exp * SF
+  v.exp.base <- v.exp
+  
   tot.exp <- sum(v.exp) # Total amount of expected values
   
   # IDs
@@ -51,5 +53,5 @@ simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   
   # Devolvemos una lista con el valor esperado,valor observado y el identificador
   sel.idx <- as.numeric(paste("46250",sel.idx,sep=""))
-  return(list(exp=v.exp,obs=v.obs,sel=sel.idx))
+  return(list(exp=v.exp,obs=v.obs,sel=sel.idx,theta=theta,SF=SF,exp.base=v.exp.base))
 }
