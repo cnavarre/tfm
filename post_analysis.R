@@ -35,9 +35,9 @@ v.theta = c(1.5,2,3)
 v.SF = c(1,2,4,10)
 
 # DEBUG START
-theta = 1.5
-SF = 10
-theta.str = gsub("[.]","",as.character(theta))
+# theta = 1.5
+# SF = 10
+# theta.str = gsub("[.]","",as.character(theta))
 # DEBUG END
 simuList = c("simu1","simu2","simu3")
 

@@ -9,8 +9,10 @@
 rm(list=ls())
 # filesDir <- "C:/Users/claudio/Dropbox/Claudio-Migue"
 # workDir <- "~/GitHub/tfm"
-filesDir <- "/host/Users/claudio/Dropbox/Claudio-Migue"
-workDir <- "/host/Users/claudio/Documents/GitHub/tfm"
+# filesDir <- "/host/Users/claudio/Dropbox/Claudio-Migue"
+# workDir <- "/host/Users/claudio/Documents/GitHub/tfm"
+filesDir <- "~/Dropbox/Claudio-Migue"
+workDir <- "~/Documents/docs/projects/tfm"
 setwd(workDir)
 
 # Libraries
@@ -30,18 +32,25 @@ for( file in files2load)
   source( file )
 
 # Load map data
-response <- GET(url="https://dl.dropboxusercontent.com/s/jl47y8w6da6x46m/Claudio.RData")
-load(rawConnection(response$content))
-rm(response)
+# response <- GET(url="https://www.dropbox.com/s/xtbhm2czs5ox5es/Claudio.Rdata")
+# load(rawConnection(response$content))
+# rm(response)
+load(paste0(filesDir,"/Claudio.Rdata"))
 vlc.nb <- poly2nb(Carto,snap=0.01)
 
 ###################
 # Constants
+# Number of regions
+Q = length(vlc.nb)
+
 # Definicion del vector de thetas
 v.theta = c(1.5,2,3)
 
 # Factor de escala para la los valores esperados
 v.SF = c(1,2,4,10)
+
+# Threshold for ROC classification
+threshold <- 0.8
 
 # DEBUG START
 # simu <- "simu1"
@@ -50,6 +59,8 @@ v.SF = c(1,2,4,10)
 # theta.str = gsub("[.]","",as.character(theta))
 # DEBUG END
 simuList = c("simu1","simu2","simu3")
+
+iwe.table <- data.frame()
 
 # Result file Path
 resultsPath <- paste0(filesDir,"/output2/")
@@ -82,9 +93,7 @@ for( SF in v.SF) {
       # Using same theta.post calculated through BYM model
       theta.post <- t(t(bym.mcmc$sims.matrix[,grep("R\\[",colnames(bym.mcmc$sims.matrix))]) * E )
       # Number of replicates
-      K = nrow(theta.post) # dim(theta.post)[1]      
-      # Number of regions
-      Q = length(vlc.nb)
+      K = nrow(theta.post) # dim(theta.post)[1]
 
       # Calculating an approximate sample of theta.rep
       m <- bym.mcmc$sims.matrix[,grep("m",colnames(bym.mcmc$sims.matrix))]
@@ -104,7 +113,29 @@ for( SF in v.SF) {
       P.rep <- t( apply(theta.post,1, function(theta.row) { ppois(O, theta.row) - 0.5 * dpois(O,theta.row) } ) )
       # Prob(Y.rep<=O_i|O\_i)
       P.Y.rep <- apply(P.rep * w,2,sum) / apply(w,2,sum)
+      
+      # Calculate SPEC. y SENS.
+      filename <- basename(resultFile)
+      iwe.table <- rbind(iwe.table,data.frame( file=filename, simu = substr(simu,5,5),
+                                               rep= as.numeric( substr( basename(resultFile), regexpr("r",filename)+1, regexpr("[.]",filename)-1 ) ),
+                                               theta, SF, t(roc.curve( obs = 1:Q %in% sel.idx, pred=P.Y.rep,th=threshold )),check.names=F))
+ 
+      # Write P.Y.rep into a result file
+      dput( x=P.Y.rep, file=paste0(filesDir, "/results/crossval/","pyrep_",basename(resultFile) ) )
     }
+    
 } # end for( SF in v.SF)
 } # end for( theta in v.theta)
 } # end for( simu in simuList ) 
+
+# Save table
+# iwe.table$rep <- as.numeric(with(iwe.table,substr(file,regexpr("r",file)+1, regexpr("[.]",file)-1) ))
+save(iwe.table,file="./iwe_table.RData")
+
+# Plots
+# colnames(iwe.table)[4:5] <- c("FPR","TPR")
+ggplot(iwe.table,aes(y=FPR,x=as.factor(theta),fill=as.factor(theta))) + geom_boxplot() + facet_grid(~SF) + ggtitle("IWE method \nFPR (1-spec.)")
+ggplot(iwe.table,aes(y=TPR,x=as.factor(theta),fill=as.factor(theta))) + geom_boxplot() + facet_grid(~SF) + ggtitle("IWE method \nTPR (sens.)")
+
+ggplot(iwe.table,aes(y=TPR,x=FPR,colour=as.factor(theta),xmin=0,xmax=1,ymin=0,ymax=1)) + geom_point() + facet_grid(~SF) + ggtitle("IWE method \nTPR vs FPR")
+

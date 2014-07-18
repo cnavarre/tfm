@@ -68,3 +68,23 @@ create.matrix <- function(nrow, ncol) {
   dim(x) <- c(nrow,ncol)
   x
 }
+
+
+# Colnames generator
+col_name <- function( name, number ) {
+  paste0( name, "[", number, "]" )
+}
+
+# ROC curve table
+roc.curve=function(obs,pred,th,print=FALSE){
+  Y=obs
+  Ps=(pred>th)*1
+  FP=sum((Ps==1)*(Y==0))/sum(Y==0)
+  TP=sum((Ps==1)*(Y==1))/sum(Y==1)
+  if(print){
+   print(table(Observed=Y,Predicted=Ps))
+  }
+  vect=c(FP,TP)
+  names(vect)=c("FPR","TPR")
+  return(vect)
+}
