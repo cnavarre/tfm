@@ -95,10 +95,11 @@ for( simu in simuList ) {
 } # END for( simu in simuList ) 
 
 # Save table
-save(bym.table,file="./spec_sens_table.RData")
+# save(bym.table,file="./spec_sens_table.RData")
+load("./spec_sens_table.RData")
 
 # Plots
-ggplot(bym.table,aes(y=FPR,x=as.factor(theta),fill=as.factor(theta))) + geom_boxplot() + facet_grid(simu~SF) + ggtitle("BYM method \nFPR (1-spec.)")
+ggplot(bym.table,aes(y=1-FPR,x=as.factor(theta),fill=as.factor(theta))) + geom_boxplot() + facet_grid(simu~SF) + ggtitle("BYM method \n1-FPR (spec.)")
 ggplot(bym.table,aes(y=TPR,x=as.factor(theta),fill=as.factor(theta))) + geom_boxplot() + facet_grid(simu~SF) + ggtitle("BYM method \nTPR (sens.)")
 
-ggplot(bym.table,aes(y=TPR,x=FPR,colour=as.factor(theta),xmin=0,xmax=1,ymin=0,ymax=1)) + geom_point() + facet_grid(~SF) + ggtitle("BYM method \nTPR vs FPR")
+ggplot(bym.table,aes(y=TPR,x=1-FPR,colour=as.factor(theta),xmin=0,xmax=1,ymin=0,ymax=1)) + geom_point() + facet_grid(~SF) + ggtitle("BYM method \nTPR vs FPR")
