@@ -36,7 +36,6 @@ load(rawConnection(response$content))
 rm(response)
 vlc.nb <- poly2nb(Carto,snap=0.01)
 
-
 ###################
 # Constants
 # Number of regions
@@ -63,17 +62,29 @@ resultsPath <- paste0(filesDir,"/output2/")
 bym.table <- data.frame()
 
 for( simu in simuList ) {
-  for( theta in v.theta) {
-    for( SF in v.SF) {
+for( theta in v.theta) {
+for( SF in v.SF) {
+      # Print new parameters
+      print(paste("> Simu=",simu),quote=F)
+      print(paste("> Theta=",theta),quote=F)
+      print(paste("> SF=",SF),quote=F)
       theta.str = gsub("[.]","",as.character(theta))
       
       pattern.str <- paste0(simu,"_",theta.str,"_", SF,"_")
       resultsList <- paste0(resultsPath,dir(path=resultsPath,pattern=pattern.str))    
             
       for( resultFile in resultsList) {
+        # DEBUG START
+        # resultFile <- resultsList[1]
+        # DEBUG END
+        
+        # Print filename
+        filename <- basename(resultFile)
+        print(paste(">> Filename: ", filename) ,quote=F )
+        
         bym <- readRDS(file=resultFile)      
         bym.mcmc <- as.mcmc(bym)
-        bym.mcmc$sims.matrix <- bym.mcmc$sims.matrix[,-(1:3)] # We are interested only in posterior dist. of \theta_i
+        bym.mcmc$sims.matrix <- bym.mcmc$sims.matrix[,col_name("R",seq(Q))] # We are interested only in posterior dist. of \theta_i
         
         scenFile <- paste0("./scenarios/",sub("\\.[[:alnum:]]+$", "", basename(resultFile)),".dat")
         data <- dget( scenFile )
@@ -81,17 +92,18 @@ for( simu in simuList ) {
         
         sel.idx <- unlist( lapply( unlist(data$sel), FUN=function(x) which(names(data$obs)==substr(x,6,10)) ) )
         
+        plot.scenario( scenFile=scenFile, save=T, plot=F )
+        
         # Classify with decission rule function
-        filename <- basename(resultFile)
         bym.table <- rbind(bym.table,data.frame( file = filename, simu= as.numeric(substr(simu,5,5)),
                                                  rep = as.numeric( substr( basename(resultFile), regexpr("r",filename)+1, regexpr("[.]",filename)-1 ) ),
                                                  theta, SF, 
                                                  t( roc.curve( seq(Q) %in% sel.idx, 
-                                                    destring(decision.rule(bym.mcmc$sims.matrix[,col_name("R",seq(Q))] )),0.5 ) ) , check.names=F ) )
-      } # END for( resultFile in resultsList )
+                                                    destring(decision.rule(bym.mcmc$sims.matrix[,col_name("R",seq(Q))] )),0.5 ) ) , check.names=F ) ) 
+        } # END for( resultFile in resultsList )
         
-    } # for( SF in v.SF) 
-  } # END for( theta in v.theta) 
+} # END for( SF in v.SF) 
+} # END for( theta in v.theta) 
 } # END for( simu in simuList ) 
 
 # Save table

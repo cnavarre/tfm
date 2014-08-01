@@ -14,7 +14,7 @@
 #' simu2(v.exp=Eprostata,all.nb=vlc.nb,theta=2,SF=1,pct=0.01)
 
 simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
-  require(spdep);require("maptools")
+  #   require(spdep);require("maptools")
   
   # if( pct<0 | pct>1) stop("Not valid pct. value for cluster")
   
@@ -33,21 +33,28 @@ simu2 <- function( v.exp,all.nb,theta,SF=1,pct=0.01 ) {
   
   cont <- TRUE  
   while( cont ) {
-    list.nb <- cluster.nb( which( (ID %in% sel.idx) ), all.nb ) # Neighbours of last added
+    clust.exp <- sum(v.exp[sel.idx])
+    
+    nb <- cluster.nb( which( (ID %in% sel.idx) ), all.nb ) # Neighbours of last added
+    
+    # Data frame with candidates and expected observation values ordered by exp.
+    list.nb <- data.frame(nb=nb,exp=v.exp[nb])
+    list.nb <- list.nb[order(list.nb$exp),]
+    list.nb$cumclust <- cumsum( list.nb$exp ) + clust.exp
     
     # To be added to cluster
-    obj2add.nb <- list.nb[cumsum(( v.exp[list.nb] + sum(v.exp[sel.idx]) ) / tot.exp) < pct]
+    obj2add.nb <- list.nb$nb[ (list.nb$cumclust / tot.exp) < pct]
     sel.idx <- c(sel.idx,ID[obj2add.nb])
     
-    cont <- ( length(obj2add.nb) == length(list.nb) )
+    cont <- ( length(obj2add.nb) == length(nb) )
   }
 
   v.obs <- vector()
   
-  # Asignamos el valor multiplicado por theta para cada punto seleccionado
+  # Increase theta for each area seleted in previous step
   v.exp[ ID %in% sel.idx ] <- v.exp[ ID %in% sel.idx ] * theta
   
-  # Creamos el vector de observaciones
+  # Sampling observed cases
   v.obs <- sapply(v.exp,FUN=function(lambda){rpois(1,lambda)})
   names(v.obs) <- ID
   
