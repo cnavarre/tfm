@@ -1,4 +1,4 @@
 tfm
 ===
 
-Thesis master project
+Master project report
